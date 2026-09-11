@@ -45,17 +45,12 @@ replaces them.
 
 ## What lives here
 
-This organisation holds the software we build and run ourselves — the customer
-portal our clients use to quote, book and track shipments, our customs
-automation, and the integrations that tie them to our operational systems.
+We build and run our own software — including the customer portal our clients
+use to quote, book and track shipments.
 
-Most repositories are private, because they run the business day to day. This
-page is the public front door.
-
-**The stack, broadly:** TypeScript and Next.js on the front end, Python and
-Django on the back, AWS (Lambda, ECS, RDS) underneath, with a good deal of the
-routine work handed to automation so our people can spend their time on the
-shipments that need a human.
+Our repositories are private. This page is simply the public front door: if
+you're after the portal, a quote or a customs enquiry, start at
+[averlogistics.co.uk](https://www.averlogistics.co.uk).
 
 ## Work with us
 
