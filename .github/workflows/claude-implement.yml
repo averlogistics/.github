@@ -1,0 +1,31 @@
+name: Claude implement
+
+# Thin caller. All the logic lives in averlogistics/workflows.
+#
+# THE `permissions:` BLOCK IS LOAD-BEARING. A reusable workflow can only NARROW
+# what its caller grants, never exceed it, and this organisation's default
+# GITHUB_TOKEN permission is read-only. Omit the block and the run dies at
+# `startup_failure` before a single step executes - which is precisely how the
+# triage rollout failed on 35 repositories at once, silently, with no logs.
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  implement:
+    # Guarded here as well as inside the shared workflow, so an unrelated label
+    # edit does not put a skipped run in this repository's Actions list.
+    if: >-
+      vars.AGENT_ENABLED == 'true'
+      && github.event.label.name == 'agent-ready'
+      && github.event.issue.state == 'open'
+    permissions:
+      contents: write
+      pull-requests: read
+      issues: write
+      id-token: write
+    uses: averlogistics/workflows/.github/workflows/claude-implement.yml@main
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      AGENT_PAT: ${{ secrets.AGENT_PAT }}
