@@ -1,0 +1,23 @@
+name: Agent PR size
+
+# Thin caller. All the logic lives in averlogistics/workflows.
+#
+# THE `permissions:` BLOCK IS LOAD-BEARING. A reusable workflow can only NARROW
+# what its caller grants, never exceed it, and this organisation's default
+# GITHUB_TOKEN permission is read-only. Omit the block and the run dies at
+# `startup_failure` before a single step executes - which is precisely how the
+# triage rollout failed on 35 repositories at once, silently, with no logs.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  size:
+    # Agent branches only. Human pull requests are none of its business, and
+    # skipping here keeps them out of this repository.
+    if: startsWith(github.head_ref, 'agent/')
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: averlogistics/workflows/.github/workflows/agent-pr-size.yml@main
