@@ -1,0 +1,21 @@
+name: Board sync
+
+# Moves this repo's issues across the Aver work board as their labels change.
+# All the logic, and every project id, lives in averlogistics/workflows.
+#
+# The triggers have to be declared here: a reusable workflow cannot subscribe to
+# `issues` or `pull_request_target` itself.
+
+on:
+  issues:
+    types: [opened, reopened, labeled, unlabeled, closed]
+  pull_request_target:
+    types: [opened, reopened, closed]
+
+jobs:
+  sync:
+    uses: averlogistics/workflows/.github/workflows/board-sync.yml@main
+    secrets:
+      # Needs the Projects permission. There is no GITHUB_TOKEN fallback — a
+      # repository token cannot write a project at all.
+      AGENT_PAT: ${{ secrets.AGENT_PAT }}
