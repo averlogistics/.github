@@ -1,0 +1,22 @@
+name: Release sync
+
+# Thin caller. The logic lives in averlogistics/workflows.
+#
+# No `permissions:` block is needed here and none is given: the shared workflow
+# declares `permissions: {}` and does everything through AGENT_PAT, because a
+# repository token cannot write a project at all.
+#
+# Fires on every push to these branches and decides for itself whether the push
+# deployed anything. In most repositories it will decide "no" and exit in a
+# second - that is the point. Which pushes deploy is a fact about the repo
+# (`DEPLOYS_ON_MERGE`), not something this file should try to encode.
+
+on:
+  push:
+    branches: [main, master, staging]
+
+jobs:
+  sync:
+    uses: averlogistics/workflows/.github/workflows/release-sync.yml@main
+    secrets:
+      AGENT_PAT: ${{ secrets.AGENT_PAT }}
