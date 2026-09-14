@@ -1,0 +1,35 @@
+name: Error report
+
+# Receives runtime errors relayed from AWS and files them as deduplicated issues
+# in THIS repository — next to the code, where a diagnosis can actually be made.
+#
+# All the logic lives in averlogistics/workflows. This file is deliberately a
+# dozen lines: ten repositories once held a full copy and had already drifted
+# into three variants. Change how errors are filed THERE, once, not here.
+#
+# `repository_dispatch` has to be declared in the caller — a reusable workflow
+# cannot be triggered by one directly. The relay (sns-github-relay) POSTs here
+# with event type `error-report`.
+#
+# A repository WITHOUT this file returns 204 to the relay and does nothing at
+# all, which is silent. That is not theoretical: it is how a weekend of
+# production errors went unfiled. Every repo the relay routes to needs it.
+
+on:
+  repository_dispatch:
+    types: [error-report]
+
+jobs:
+  file:
+    # Granted HERE, not in the shared workflow. A reusable workflow can only
+    # narrow the caller's permissions, never exceed them — and this org's
+    # default token is read-only, so without this the run dies at
+    # `startup_failure` before a single step executes, with no log to read.
+    permissions:
+      issues: write
+
+    uses: averlogistics/workflows/.github/workflows/error-report.yml@main
+    secrets:
+      # Without this the issue is filed but never triaged: GitHub suppresses
+      # workflow events from GITHUB_TOKEN, so nothing downstream ever sees it.
+      AGENT_PAT: ${{ secrets.AGENT_PAT }}
