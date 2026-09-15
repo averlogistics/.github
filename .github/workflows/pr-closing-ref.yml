@@ -1,0 +1,30 @@
+name: PR closing reference
+
+# Thin caller. All the logic lives in averlogistics/workflows.
+#
+# Checks that the pull request BODY carries `Closes #N` pointing at an issue
+# that actually exists here. Not style: close-on-merge.yml and release-sync.yml
+# both parse the body for it, and both fail SILENTLY without it - the issue
+# stays open after its fix ships, and the board card never leaves "On the
+# train" while the change is running in production.
+#
+# THE `permissions:` BLOCK IS LOAD-BEARING. A reusable workflow can only NARROW
+# what its caller grants, never exceed it, and this organisation's default
+# GITHUB_TOKEN permission is read-only. Omit the block and the run dies at
+# `startup_failure` before a single step executes - which is precisely how the
+# triage rollout failed on 35 repositories at once, silently, with no logs.
+
+on:
+  pull_request:
+    # `edited` so fixing the body clears the check, and `labeled`/`unlabeled` so
+    # applying the `no-issue` opt-out clears it too - adding a label does NOT
+    # fire `edited`, so without these two the opt-out could not clear a red X.
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  closing-ref:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
+    uses: averlogistics/workflows/.github/workflows/pr-closing-ref.yml@main
